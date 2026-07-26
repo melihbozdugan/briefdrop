@@ -1,13 +1,12 @@
-# Stage 1: Build
-FROM eclipse-temurin:17-jdk AS builder
+FROM gradle:8-jdk17 AS builder
 WORKDIR /workspace
-COPY . .
 
-RUN chmod +x gradlew
+COPY build.gradle settings.gradle ./
+COPY gradle gradle/
+COPY src src/
 
-RUN ./gradlew bootJar --no-daemon --no-build-cache -Dorg.gradle.jvmargs="-Xmx300m" -x test --stacktrace
+RUN gradle bootJar --no-daemon --no-build-cache -x test
 
-# Stage 2: Run
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=builder /workspace/build/libs/*.jar app.jar
