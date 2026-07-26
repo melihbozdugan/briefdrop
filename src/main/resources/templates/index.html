@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.title}">BriefDrop — Effortless Client Content Collection</title>
+    <meta name="description" content="BriefDrop: The simplest way for web designers and agencies to collect client content. Send a link, get content.">
+
+    <!-- Google Analytics 4 -->
+    <script th:if="${@environment.getProperty('GA4_MEASUREMENT_ID') != null}" th:inline="javascript">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', /*[[${@environment.getProperty('GA4_MEASUREMENT_ID')}]]*/ 'YOUR-GA4-ID');
+    </script>
+    <script async th:if="${@environment.getProperty('GA4_MEASUREMENT_ID') != null}"
+            th:src="${'https://www.googletagmanager.com/gtag/js?id=' + @environment.getProperty('GA4_MEASUREMENT_ID')}"></script>
+    <!-- /GA4 -->
+
+    <!-- Microsoft Clarity -->
+    <script th:if="${@environment.getProperty('CLARITY_PROJECT_ID') != null}" th:inline="javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", /*[[${@environment.getProperty('CLARITY_PROJECT_ID')}]]*/ 'YOUR-CLARITY-ID');
+    </script>
+    <!-- /Clarity -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } },
+                        glow: { '0%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)' }, '100%': { boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)' } },
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .glass-hover:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12); }
+        .gradient-text { background: linear-gradient(135deg, #818cf8, #c084fc, #e879f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-glow { background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 70%); }
+        .pricing-popular { background: linear-gradient(rgba(15, 23, 42, 1), rgba(15, 23, 42, 1)) padding-box, linear-gradient(135deg, #f59e0b, #ef4444) border-box; border: 1px solid transparent; }
+        .currency-btn { transition: all 0.15s ease; }
+        .currency-btn.active { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4); }
+        .lang-btn { transition: all 0.15s ease; }
+        .lang-btn.active { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4); }
+    </style>
+</head>
+<body class="bg-[#030712] text-gray-100 font-sans antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2.5">
+                    <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+                        <path d="M8 12l4-4 4 4M8 20l4 4 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+                    </svg>
+                    <span class="text-xl font-bold tracking-tight"><span class="gradient-text">Brief</span><span class="text-white">Drop</span></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+                        <a th:href="@{/?lang=en}" class="lang-btn px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-white" id="lang-en">EN</a>
+                        <a th:href="@{/?lang=tr}" class="lang-btn px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-white" id="lang-tr">TR</a>
+                    </div>
+                    <div class="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+                        <a th:href="@{/?currency=USD}" class="currency-btn px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-white" id="cur-usd">$</a>
+                        <a th:href="@{/?currency=TRY}" class="currency-btn px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-white" id="cur-try">&#8378;</a>
+                    </div>
+                    <button onclick="openModal('ltd')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25 cursor-pointer" th:text="#{nav.cta}">Get Early Access</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
+        <div class="absolute inset-0 hero-glow"></div>
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm text-gray-300 mb-8">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span th:text="#{hero.badge}">Early access now open</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-[1.05] max-w-4xl mx-auto" th:utext="#{hero.headline}">Stop <br class="hidden sm:block"><span class="gradient-text">chasing clients</span> for content</h1>
+            <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed" th:utext="#{hero.subheadline}">Send your clients a single link with BriefDrop...</p>
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="openModal('ltd')" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-lg font-bold px-8 py-4 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 hover:scale-[1.02] cursor-pointer animate-glow" th:utext="#{hero.cta}">Join Early Access &mdash; Get 50% Off</button>
+                <a href="#pricing" class="w-full sm:w-auto text-gray-400 hover:text-white font-semibold px-8 py-4 rounded-2xl glass-hover transition-all duration-200 text-center" th:text="#{hero.pricing.link}">See Pricing</a>
+            </div>
+            <p class="mt-4 text-sm text-gray-600" th:text="#{hero.disclaimer}">No credit card required. Join the waitlist, get notified early.</p>
+        </div>
+    </section>
+
+    <!-- Problem / Solution -->
+    <section class="relative py-20 sm:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <div>
+                    <span class="text-indigo-400 font-semibold text-sm tracking-wide uppercase" th:text="#{problem.label}">The Problem</span>
+                    <h2 class="mt-3 text-3xl sm:text-4xl font-bold tracking-tight" th:text="#{problem.heading}">Emails, WhatsApp threads, lost files...</h2>
+                    <p class="mt-4 text-gray-400 text-lg leading-relaxed" th:text="#{problem.desc}">Every project, you spend days chasing clients for logos, copy, and images...</p>
+                    <ul class="mt-6 space-y-3 text-gray-300">
+                        <li class="flex items-start gap-3"><svg class="w-5 h-5 text-red-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg><span th:text="#{problem.item1}">47-message content chains lost in WhatsApp</span></li>
+                        <li class="flex items-start gap-3"><svg class="w-5 h-5 text-red-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg><span th:text="#{problem.item2}">Clients saying "I'll send the logo tomorrow" then going silent for 2 weeks</span></li>
+                        <li class="flex items-start gap-3"><svg class="w-5 h-5 text-red-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg><span th:text="#{problem.item3}">"final_version_real_v3.zip" attachments in email</span></li>
+                    </ul>
+                </div>
+                <div class="relative">
+                    <div class="glass rounded-2xl p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500/60"></div><div class="w-3 h-3 rounded-full bg-yellow-500/60"></div><div class="w-3 h-3 rounded-full bg-green-500/60"></div></div>
+                            <span class="text-sm text-gray-500 ml-2" th:text="#{portal.url}">client.briefdrop.co/project-xyz</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="glass rounded-xl p-4 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
+                                <div><p class="font-medium text-sm" th:text="#{portal.item1}">Logo Upload</p><p class="text-xs text-gray-500" th:text="#{portal.item1.desc}">PNG / SVG / JPG, max 10MB</p></div>
+                                <span class="ml-auto text-xs text-green-400 font-medium" th:text="#{portal.item1.status}">Completed</span>
+                            </div>
+                            <div class="glass rounded-xl p-4 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                                <div><p class="font-medium text-sm" th:text="#{portal.item2}">About Us Copy</p><p class="text-xs text-gray-500" th:text="#{portal.item2.desc}">Min 200 words</p></div>
+                                <span class="ml-auto text-xs text-yellow-400 font-medium" th:text="#{portal.item2.status}">Pending</span>
+                            </div>
+                            <div class="glass rounded-xl p-4 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                                <div><p class="font-medium text-sm" th:text="#{portal.item3}">Reference Images</p><p class="text-xs text-gray-500" th:text="#{portal.item3.desc}">Up to 5 images</p></div>
+                                <span class="ml-auto text-xs text-yellow-400 font-medium" th:text="#{portal.item3.status}">Pending</span>
+                            </div>
+                            <div class="glass rounded-xl p-4 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg></div>
+                                <div><p class="font-medium text-sm" th:text="#{portal.item4}">Hosting / Domain Credentials</p><p class="text-xs text-gray-500" th:text="#{portal.item4.desc}">Encrypted & secure transfer</p></div>
+                                <span class="ml-auto text-xs text-yellow-400 font-medium" th:text="#{portal.item4.status}">Pending</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 glass rounded-xl px-4 py-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="text-sm text-gray-300" th:text="#{portal.badge}">No password needed — magic link access</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="relative py-20 sm:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-purple-400 font-semibold text-sm tracking-wide uppercase" th:text="#{features.label}">Features</span>
+                <h2 class="mt-3 text-3xl sm:text-4xl font-bold tracking-tight" th:text="#{features.heading}">You do the work, let BriefDrop handle the follow-up</h2>
+                <p class="mt-4 text-gray-400 text-lg max-w-2xl mx-auto" th:text="#{features.subheading}">No need to pay hundreds for bloated CRMs. Everything you need is here.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass rounded-2xl p-6 hover:border-indigo-500/30 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
+                    <h3 class="font-bold text-lg mb-2" th:text="#{features.magic.title}">Magic Link</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed" th:text="#{features.magic.desc}">Send your client a password-free, one-click link.</p>
+                </div>
+                <div class="glass rounded-2xl p-6 hover:border-purple-500/30 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></div>
+                    <h3 class="font-bold text-lg mb-2" th:text="#{features.template.title}">Template System</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed" th:text="#{features.template.desc}">Create custom templates for each project type.</p>
+                </div>
+                <div class="glass rounded-2xl p-6 hover:border-pink-500/30 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></div>
+                    <h3 class="font-bold text-lg mb-2" th:text="#{features.reminder.title}">Auto Reminders</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed" th:text="#{features.reminder.desc}">Automated email/SMS reminders when clients forget.</p>
+                </div>
+                <div class="glass rounded-2xl p-6 hover:border-green-500/30 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
+                    <h3 class="font-bold text-lg mb-2" th:text="#{features.storage.title}">Secure Storage</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed" th:text="#{features.storage.desc}">End-to-end encrypted. S3-powered infrastructure.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="relative py-20 sm:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-amber-400 font-semibold text-sm tracking-wide uppercase" th:text="#{pricing.label}">Pricing</span>
+                <h2 class="mt-3 text-3xl sm:text-4xl font-bold tracking-tight" th:utext="#{pricing.heading}"><span class="gradient-text">50% off</span> for early access</h2>
+                <p class="mt-4 text-gray-400 text-lg max-w-2xl mx-auto" th:text="#{pricing.subheading}">Join the waitlist now and get your chosen plan at half price on launch day.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Free -->
+                <div class="glass rounded-3xl p-8 flex flex-col">
+                    <h3 class="text-xl font-bold" th:text="#{pricing.free.name}">Free</h3>
+                    <div class="mt-3">
+                        <span class="text-4xl font-black" th:text="${pricing.free.price}">$0</span>
+                        <span class="text-gray-500" th:text="${pricing.free.period}">/mo</span>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-400" th:text="#{pricing.free.desc}">For freelancers just starting out</p>
+                    <ul class="mt-8 space-y-3 text-sm text-gray-300 flex-1">
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.free.item1}">1 active project</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.free.item2}">100 MB storage</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.free.item3}">Magic link upload portal</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-yellow-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span th:utext="#{pricing.free.item4}">Powered by BriefDrop badge</span></li>
+                    </ul>
+                    <button onclick="openModal('free')" class="mt-8 w-full py-3 rounded-xl border border-white/10 hover:border-white/20 text-white font-semibold transition-all duration-200 hover:bg-white/5 cursor-pointer" th:text="#{pricing.free.cta}">Get Started</button>
+                </div>
+
+                <!-- Pro -->
+                <div class="glass rounded-3xl p-8 flex flex-col">
+                    <h3 class="text-xl font-bold" th:text="#{pricing.pro.name}">Pro</h3>
+                    <div class="mt-3">
+                        <span class="text-4xl font-black" th:text="${pricing.pro.price}">$9</span>
+                        <span class="text-gray-500" th:text="${pricing.pro.period}">/mo</span>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-400" th:text="#{pricing.pro.desc}">For professional freelancers</p>
+                    <ul class="mt-8 space-y-3 text-sm text-gray-300 flex-1">
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.pro.item1}">10 active projects</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.pro.item2}">Unlimited automated reminders</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.pro.item3}">White-label customization</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.pro.item4}">Email & SMS reminders</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.pro.item5}">Priority support</span></li>
+                    </ul>
+                    <button onclick="openModal('pro')" class="mt-8 w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25 cursor-pointer" th:text="#{pricing.pro.cta}">Get Started</button>
+                </div>
+
+                <!-- LTD -->
+                <div class="relative pricing-popular rounded-3xl p-8 flex flex-col">
+                    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap" th:text="#{pricing.ltd.badge}">Most Popular</div>
+                    <h3 class="text-xl font-bold" th:text="#{pricing.ltd.name}">Lifetime Deal</h3>
+                    <div class="mt-3">
+                        <span class="text-4xl font-black" th:text="${pricing.ltd.price}">$49</span>
+                        <span class="text-gray-500 text-sm" th:text="' / ' + ${pricing.ltd.period}"> / one-time</span>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-400" th:text="#{pricing.ltd.desc}">Exclusive early access offer</p>
+                    <ul class="mt-8 space-y-3 text-sm text-gray-300 flex-1">
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:utext="#{pricing.ltd.item1}"><strong>Unlimited</strong> projects</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.ltd.item2}">50 GB storage</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.ltd.item3}">Custom domain (CNAME)</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:text="#{pricing.ltd.item4}">All Pro features included</span></li>
+                        <li class="flex items-center gap-2.5"><svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span th:utext="#{pricing.ltd.item5}"><strong>Lifetime</strong> access</span></li>
+                    </ul>
+                    <button onclick="openModal('ltd')" class="mt-8 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/25 cursor-pointer" th:text="#{pricing.ltd.cta}">Claim the Deal</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="relative py-20 sm:py-24">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="glass rounded-3xl p-10 sm:p-14">
+                <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" th:text="#{cta.heading}">Stop chasing content today</h2>
+                <p class="mt-4 text-gray-400 text-lg max-w-xl mx-auto" th:text="#{cta.subtext}">Join the early access waitlist and be among the first to use BriefDrop at 50% off.</p>
+                <button onclick="openModal('ltd')" class="mt-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-lg font-bold px-10 py-4 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 hover:scale-[1.02] cursor-pointer" th:text="#{cta.button}">Join Early Access</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-grad-small)"/>
+                    <path d="M8 12l4-4 4 4M8 20l4 4 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="logo-grad-small" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+                </svg>
+                <span class="text-sm text-gray-500" th:text="#{footer.copyright}">&copy; 2026 BriefDrop. All rights reserved.</span>
+            </div>
+            <div class="flex gap-6 text-sm text-gray-600">
+                <a href="#" class="hover:text-gray-400 transition-colors" th:text="#{footer.privacy}">Privacy</a>
+                <a href="#" class="hover:text-gray-400 transition-colors" th:text="#{footer.terms}">Terms</a>
+                <a href="#" class="hover:text-gray-400 transition-colors" th:text="#{footer.contact}">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Waitlist Modal -->
+    <div id="waitlist-modal" class="fixed inset-0 z-[100] hidden items-center justify-center" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="relative glass rounded-3xl p-8 sm:p-10 max-w-md w-full mx-4 shadow-2xl border-white/10">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors cursor-pointer">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <div id="modal-form">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-5">
+                    <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-center" th:text="#{modal.title}">Almost there!</h3>
+                <p class="mt-3 text-gray-400 text-center text-sm leading-relaxed" th:utext="#{modal.body}">Due to overwhelming demand...</p>
+                <form id="waitlist-form" class="mt-6 space-y-4" onsubmit="handleSubmit(event)">
+                    <input type="hidden" id="selected-plan" name="plan" value="ltd">
+                    <input type="hidden" id="form-currency" name="currency" th:value="${currency}">
+                    <input type="hidden" id="form-country" name="countryCode" th:value="${countryCode}">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-1.5" th:text="#{modal.email.label}">Your email address</label>
+                        <input type="email" id="email" name="email" required
+                               class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                               th:placeholder="#{modal.email.placeholder}" placeholder="you@example.com">
+                    </div>
+                    <div class="text-xs text-gray-600 text-center" th:text="#{modal.disclaimer}">No spam, launch notification only.</div>
+                    <button type="submit"
+                            class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25 cursor-pointer flex items-center justify-center gap-2">
+                        <span id="submit-text" th:text="#{modal.submit}">Join Waitlist</span>
+                        <svg id="submit-spinner" class="hidden w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" class="opacity-25"/>
+                            <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="3" class="opacity-75"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <div id="modal-success" class="hidden text-center py-6">
+                <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-5">
+                    <svg class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h3 class="text-2xl font-bold" th:text="#{modal.success.title}">You're on the list!</h3>
+                <p class="mt-3 text-gray-400 text-sm" id="success-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden locale strings -->
+    <div id="locale-strings" class="hidden"
+        data-submitting="#{modal.submitting}"
+        data-submit-text="#{modal.submit}"
+        data-error="#{modal.error}"></div>
+
+    <script>
+        let selectedPlan = 'ltd';
+        const pageCurrency = /*[[${currency}]]*/ 'USD';
+        const pageCountry = /*[[${countryCode}]]*/ 'XX';
+
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var lang = params.get('lang') || 'en';
+            var btn = document.getElementById('lang-' + lang);
+            if (btn) btn.classList.add('active');
+
+            var cur = params.get('currency') || pageCurrency;
+            var curBtn = document.getElementById('cur-' + cur.toLowerCase());
+            if (curBtn) curBtn.classList.add('active');
+        })();
+
+        function trackEvent(action, plan) {
+            if (typeof gtag === 'function') {
+                gtag('event', action, {
+                    'plan_name': plan,
+                    'currency': pageCurrency,
+                    'country': pageCountry
+                });
+            }
+        }
+
+        function openModal(plan) {
+            selectedPlan = plan;
+            trackEvent('click_cta_button', plan);
+
+            document.getElementById('selected-plan').value = plan;
+            document.getElementById('form-currency').value = pageCurrency;
+            document.getElementById('form-country').value = pageCountry;
+            document.getElementById('modal-form').classList.remove('hidden');
+            document.getElementById('modal-success').classList.add('hidden');
+            document.getElementById('email').value = '';
+            var modal = document.getElementById('waitlist-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('waitlist-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            var email = document.getElementById('email').value.trim();
+            var btn = e.target.querySelector('button[type="submit"]');
+            var locale = document.getElementById('locale-strings').dataset;
+
+            document.getElementById('submit-text').textContent = locale.submitting || '...';
+            document.getElementById('submit-spinner').classList.remove('hidden');
+            btn.disabled = true;
+
+            try {
+                var res = await fetch('/api/waitlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        plan: selectedPlan,
+                        currency: document.getElementById('form-currency').value,
+                        utmSource: new URLSearchParams(window.location.search).get('utm_source') || ''
+                    })
+                });
+                var data = await res.json();
+
+                trackEvent('waitlist_signup', selectedPlan);
+
+                document.getElementById('modal-form').classList.add('hidden');
+                document.getElementById('modal-success').classList.remove('hidden');
+                document.getElementById('success-message').textContent = data.message;
+            } catch (err) {
+                document.getElementById('success-message').textContent = locale.error || 'Something went wrong.';
+                document.getElementById('modal-form').classList.add('hidden');
+                document.getElementById('modal-success').classList.remove('hidden');
+            } finally {
+                document.getElementById('submit-text').textContent = locale.submitText || 'Submit';
+                document.getElementById('submit-spinner').classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+    </script>
+</body>
+</html>
